@@ -79,7 +79,8 @@ void createData(FileType type, const char* path)
 int main(int argc, char* argv[])
 {
 #ifdef _DEBUG
-	createData(FileType::FBX, "P:/VertexAnimationTextureGenerator/VAT_Exporter/Debug/pontus_crowd_30fps.fbx");
+	createData(FileType::FBX, "G:/Hemligt/VAT_Exporter/Debug/pontus_crowd_30fps.fbx");
+	//createData(FileType::FBX, "P:/VertexAnimationTextureGenerator/VAT_Exporter/Debug/pontus_crowd_30fps.fbx");
 #else
 
 	if (argc < 2)
