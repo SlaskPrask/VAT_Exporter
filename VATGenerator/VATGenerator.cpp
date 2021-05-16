@@ -1,20 +1,109 @@
-// VATGenerator.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
+#include <string>
+#include <conio.h>
+#include "ModelReader.h"
+#include "ImageMaker.h"
 
-int main()
+const char* supportedFiletypes[] = { ".fbx" };
+const int supportedFiletypesCount = 1;
+
+const char* stripFileExtension(char* path)
 {
-    std::cout << "Hello World!\n";
+	for (int i = strlen(path); i >= 0; i--)
+	{
+		if (path[i] == '.')
+		{
+			return path + i;
+		}
+	}
+
+	return "";
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+void printSupportedFormats()
+{
+	std::cout << "Supported formats are: \n";
+	for (int i = 0; i < supportedFiletypesCount; i++)
+	{
+		std::cout << supportedFiletypes[i] << std::endl;
+	}
+}
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+bool checkValidFiletype(const char* fileExt, FileType& type)
+{
+	for (int i = 0; i < supportedFiletypesCount; i++)
+	{
+		if (strcmp(fileExt, supportedFiletypes[i]) == 0)
+		{
+			type = (FileType)i;
+			return true;
+		}
+	}
+
+
+	return false;
+}
+
+void exitMessage()
+{
+	std::cout << "Press any key to exit.\n";
+	_getch();
+}
+
+void createData(FileType type, const char* path)
+{
+	bool success;
+	ModelReader model = ModelReader(type, path, success);
+
+	if (!success)
+	{
+		std::cout << "Error reading model data" << std::endl;
+		return;
+	}
+
+	ImageMaker imgMaker = ImageMaker(model.getAnimationData(), path, success);
+
+	if (!success)
+	{
+		std::cout << "Error writing file" << std::endl;
+		return;
+	}
+
+	if (success)
+	{
+		std::cout << "Completed successfully" << std::endl;
+	}
+
+}
+
+int main(int argc, char* argv[])
+{
+#ifdef _DEBUG
+	createData(FileType::FBX, "P:/VertexAnimationTextureGenerator/VAT_Exporter/Debug/pontus_crowd_30fps.fbx");
+#else
+
+	if (argc < 2)
+	{
+		std::cout << "Please drop a valid model with animation onto VATGenerator.exe\n";
+		printSupportedFormats();
+	}
+	else
+	{
+		//Get File Extension
+		const char* fileExt = stripFileExtension(argv[1]);
+		FileType type;
+		//Check if supported format
+		if (checkValidFiletype(fileExt, type))
+		{
+			createData(type, argv[1]);
+		}
+		else
+		{
+			std::cout << "Invalid file type:" << fileExt << std::endl;
+			printSupportedFormats();
+		}
+	}
+
+#endif
+	exitMessage();
+}
